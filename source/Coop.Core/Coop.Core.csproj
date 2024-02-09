@@ -93,6 +93,10 @@
 	  </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Server\Services\Armies\Messages\" />
+    <Folder Include="Server\Services\Kingdoms\Messages\" />
+  </ItemGroup>
+  <ItemGroup>
     <Publicize Include="TaleWorlds.Library" />
   </ItemGroup>
 </Project>
