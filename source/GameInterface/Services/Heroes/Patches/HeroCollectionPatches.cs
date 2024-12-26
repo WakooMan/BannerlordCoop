@@ -9,8 +9,6 @@ using System.Reflection;
 using TaleWorlds.Core;
 using TaleWorlds.CampaignSystem;
 using GameInterface.Policies;
-using GameInterface.Services.Equipments.Messages.Events;
-using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.CampaignSystem.ViewModelCollection.GameMenu.Recruitment;
@@ -18,8 +16,6 @@ using TaleWorlds.CampaignSystem.Settlements;
 using GameInterface.Services.Heroes.Messages.Collections;
 using TaleWorlds.Library;
 using TaleWorlds.CampaignSystem.Party.PartyComponents;
-using GameInterface.Services.MobileParties.Patches;
-using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements.Workshops;
 
 namespace GameInterface.Services.Heroes.Patches;
@@ -41,11 +37,11 @@ internal class HeroCollectionPatches
         yield return AccessTools.Method(typeof(RecruitmentCampaignBehavior), nameof(RecruitmentCampaignBehavior.ApplyInternal));
         yield return AccessTools.Method(typeof(Town), nameof(Town.DailyGarrisonAdjustment));
         // Carvans
-        // yield return AccessTools.Method(typeof(CaravanPartyComponent), nameof(CaravanPartyComponent.OnFinalize));
+        yield return AccessTools.Method(typeof(CaravanPartyComponent), nameof(CaravanPartyComponent.OnFinalize));
         yield return AccessTools.Method(typeof(CaravanPartyComponent), nameof(CaravanPartyComponent.OnInitialize));
         // Alleys
         yield return AccessTools.Method(typeof(Alley), nameof(Alley.AfterLoad));
-        // yield return AccessTools.Method(typeof(Alley), nameof(Alley.SetOwner));
+        yield return AccessTools.Method(typeof(Alley), nameof(Alley.SetOwner));
     }
 
     [HarmonyTranspiler]
@@ -102,8 +98,6 @@ internal class HeroCollectionPatches
     [HarmonyTranspiler]
     static IEnumerable<CodeInstruction> ChildrenTranspiler(IEnumerable<CodeInstruction> instructions)
     {
-        var stack = new Stack<CodeInstruction>();
-
         var childrenAddMethod = typeof(MBList<Hero>).GetMethod("Add");
         var childrenAddIntercept = AccessTools.Method(typeof(HeroCollectionPatches), nameof(ChildrenAddIntercept));
 
@@ -150,8 +144,6 @@ internal class HeroCollectionPatches
     [HarmonyTranspiler]
     static IEnumerable<CodeInstruction> CaravanTranspiler(IEnumerable<CodeInstruction> instructions)
     {
-        var stack = new Stack<CodeInstruction>();
-
         var addMethod = typeof(List<CaravanPartyComponent>).GetMethod("Add");
         var caravanAddIntercept = AccessTools.Method(typeof(HeroCollectionPatches), nameof(CaravanAddIntercept));
 
@@ -173,7 +165,7 @@ internal class HeroCollectionPatches
             else if (instruction.opcode == OpCodes.Callvirt && instruction.operand as MethodInfo == removeMethod)
             {
                 var newInstr = new CodeInstruction(OpCodes.Call, removeIntercept);
-                newInstr.labels = instruction.labels;
+                //newInstr.labels = instruction.labels;
 
                 yield return new CodeInstruction(OpCodes.Ldarg_0);
                 yield return newInstr;
@@ -206,37 +198,34 @@ internal class HeroCollectionPatches
         ownedCaravans.Add(value);
     }
 
-    public static void CaravanRemoveIntercept(List<CaravanPartyComponent> ownedCaravans, CaravanPartyComponent value, Hero instance)
+    public static bool CaravanRemoveIntercept(List<CaravanPartyComponent> ownedCaravans, CaravanPartyComponent value, Hero instance)
     {
         // Call original if we call this function
         if (CallOriginalPolicy.IsOriginalAllowed())
         {
-            ownedCaravans.Remove(value);
-            return;
+            return ownedCaravans.Remove(value);
         }
 
         if (ModInformation.IsClient)
         {
             Logger.Error("Client created unmanaged {name}\n"
                 + "Callstack: {callstack}", typeof(Equipment), Environment.StackTrace);
-            return;
+            return ownedCaravans.Remove(value); ;
         }
         var message = new CaravanListRemoved(instance, value);
         MessageBroker.Instance.Publish(instance, message);
 
-        ownedCaravans.Remove(value);
+        return ownedCaravans.Remove(value);
     }
 
     [HarmonyTranspiler]
     static IEnumerable<CodeInstruction> AlleyTranspiler(IEnumerable<CodeInstruction> instructions)
     {
-        var stack = new Stack<CodeInstruction>();
-
         var addMethod = typeof(List<Alley>).GetMethod("Add");
         var addIntercept = AccessTools.Method(typeof(HeroCollectionPatches), nameof(AlleyAddIntercept));
 
         var removeMethod = typeof(List<Alley>).GetMethod("Remove");
-        var removeIntercept = typeof(HeroCollectionPatches).GetMethod(nameof(CaravanRemoveIntercept));
+        var removeIntercept = typeof(HeroCollectionPatches).GetMethod(nameof(AlleyRemoveIntercept));
 
         foreach (var instruction in instructions)
         {
@@ -277,7 +266,7 @@ internal class HeroCollectionPatches
         if (ModInformation.IsClient)
         {
             Logger.Error("Client created unmanaged {name}\n"
-                + "Callstack: {callstack}", typeof(Equipment), Environment.StackTrace);
+                + "Callstack: {callstack}", typeof(Hero), Environment.StackTrace);
             return;
         }
         var message = new AlleyListUpdated(instance, value);
@@ -286,25 +275,24 @@ internal class HeroCollectionPatches
         ownedAlleys.Add(value);
     }
 
-    public static void AlleyRemoveIntercept(List<Alley> ownedAlleys, Alley value, Hero instance)
+    public static bool AlleyRemoveIntercept(List<Alley> ownedAlleys, Alley value, Hero instance)
     {
         // Call original if we call this function
         if (CallOriginalPolicy.IsOriginalAllowed())
         {
-            ownedAlleys.Remove(value);
-            return;
+            return ownedAlleys.Remove(value);
         }
 
         if (ModInformation.IsClient)
         {
             Logger.Error("Client created unmanaged {name}\n"
-                + "Callstack: {callstack}", typeof(Equipment), Environment.StackTrace);
-            return;
+                + "Callstack: {callstack}", typeof(Hero), Environment.StackTrace);
+            return ownedAlleys.Remove(value);
         }
         var message = new AlleyListRemoved(instance, value);
         MessageBroker.Instance.Publish(instance, message);
 
-        ownedAlleys.Remove(value);
+        return ownedAlleys.Remove(value);
     }
     [HarmonyTranspiler]
     static IEnumerable<CodeInstruction> WorkshopTranspiler(IEnumerable<CodeInstruction> instructions)
@@ -356,7 +344,7 @@ internal class HeroCollectionPatches
         if (ModInformation.IsClient)
         {
             Logger.Error("Client created unmanaged {name}\n"
-                + "Callstack: {callstack}", typeof(Equipment), Environment.StackTrace);
+                + "Callstack: {callstack}", typeof(Hero), Environment.StackTrace);
             return;
         }
         var message = new WorkshopListUpdated(instance, value);
@@ -365,25 +353,24 @@ internal class HeroCollectionPatches
         ownedWorkshops.Add(value);
     }
 
-    public static void WorkshopRemoveIntercept(MBList<Workshop> ownedWorkshops, Workshop value, Hero instance)
+    public static bool WorkshopRemoveIntercept(MBList<Workshop> ownedWorkshops, Workshop value, Hero instance)
     {
         // Call original if we call this function
         if (CallOriginalPolicy.IsOriginalAllowed())
         {
-            ownedWorkshops.Remove(value);
-            return;
+            return ownedWorkshops.Remove(value);
         }
 
         if (ModInformation.IsClient)
         {
             Logger.Error("Client created unmanaged {name}\n"
-                + "Callstack: {callstack}", typeof(Equipment), Environment.StackTrace);
-            return;
+                + "Callstack: {callstack}", typeof(Hero), Environment.StackTrace);
+            return ownedWorkshops.Remove(value);
         }
         var message = new WorkshopListRemoved(instance, value);
         MessageBroker.Instance.Publish(instance, message);
 
-        ownedWorkshops.Remove(value);
+        return ownedWorkshops.Remove(value);
     }
 }
 

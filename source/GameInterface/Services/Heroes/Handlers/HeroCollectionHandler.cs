@@ -42,6 +42,21 @@ namespace GameInterface.Services.Heroes.Handlers
 
             messageBroker.Subscribe<ChildrenListUpdated>(Handle);
             messageBroker.Subscribe<NetworkUpdateChildrenList>(Handle);
+
+            messageBroker.Subscribe<CaravanListUpdated>(Handle);
+            messageBroker.Subscribe<NetworkUpdateCaravanList>(Handle);
+            messageBroker.Subscribe<CaravanListRemoved>(Handle);
+            messageBroker.Subscribe<NetworkRemoveCaravanList>(Handle);
+
+            messageBroker.Subscribe<AlleyListUpdated>(Handle);
+            messageBroker.Subscribe<NetworkUpdateAlleyList>(Handle);
+            messageBroker.Subscribe<AlleyListRemoved>(Handle);
+            messageBroker.Subscribe<NetworkRemoveAlleyList>(Handle);
+
+            messageBroker.Subscribe<WorkshopListUpdated>(Handle);
+            messageBroker.Subscribe<NetworkUpdateWorkshopList>(Handle);
+            messageBroker.Subscribe<WorkshopListRemoved>(Handle);
+            messageBroker.Subscribe<NetworkRemoveWorkshopList>(Handle);
         }
 
         public void Dispose()
@@ -51,6 +66,21 @@ namespace GameInterface.Services.Heroes.Handlers
 
             messageBroker.Unsubscribe<ChildrenListUpdated>(Handle);
             messageBroker.Unsubscribe<NetworkUpdateChildrenList>(Handle);
+
+            messageBroker.Unsubscribe<CaravanListUpdated>(Handle);
+            messageBroker.Unsubscribe<NetworkUpdateCaravanList>(Handle);
+            messageBroker.Unsubscribe<CaravanListRemoved>(Handle);
+            messageBroker.Unsubscribe<NetworkRemoveCaravanList>(Handle);
+
+            messageBroker.Unsubscribe<AlleyListUpdated>(Handle);
+            messageBroker.Unsubscribe<NetworkUpdateAlleyList>(Handle);
+            messageBroker.Unsubscribe<AlleyListRemoved>(Handle);
+            messageBroker.Unsubscribe<NetworkRemoveAlleyList>(Handle);
+
+            messageBroker.Unsubscribe<WorkshopListUpdated>(Handle);
+            messageBroker.Unsubscribe<NetworkUpdateWorkshopList>(Handle);
+            messageBroker.Unsubscribe<WorkshopListRemoved>(Handle);
+            messageBroker.Unsubscribe<NetworkRemoveWorkshopList>(Handle);
         }
 
         private void Handle(MessagePayload<VolunteerTypesArrayUpdated> payload)
