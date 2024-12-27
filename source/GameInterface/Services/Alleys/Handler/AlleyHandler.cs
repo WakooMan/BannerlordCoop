@@ -84,7 +84,6 @@ namespace GameInterface.Services.Alleys.Handlers
                     { 
                         Alley_ctor.Invoke(Alley, new Object[] {Settlement, payload.What.Tag, new TextObject(payload.What.Name)}); 
                     }
-
                     catch (Exception e) 
                     {
                         Logger.Error(e, "Failed to invoke constructor for {type}", typeof(Alley)); 

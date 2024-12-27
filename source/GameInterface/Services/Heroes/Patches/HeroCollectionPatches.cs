@@ -207,7 +207,7 @@ internal class HeroCollectionPatches
         {
             Logger.Error("Client created unmanaged {name}\n"
                 + "Callstack: {callstack}", typeof(Equipment), Environment.StackTrace);
-            return ownedCaravans.Remove(value); ;
+            return ownedCaravans.Remove(value);
         }
         var message = new CaravanListRemoved(instance, value);
         MessageBroker.Instance.Publish(instance, message);
