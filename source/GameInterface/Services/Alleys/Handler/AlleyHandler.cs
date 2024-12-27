@@ -66,9 +66,8 @@ namespace GameInterface.Services.Alleys.Handlers
             network.SendAll(message);
         }
 
-        private void Handle(MessagePayload<NetworkCreateAlley> payload) { 
-            
-
+        private void Handle(MessagePayload<NetworkCreateAlley> payload)
+        { 
             if (objectManager.TryGetObject(payload.What.SettlementId, out Settlement Settlement) == false)
             {
                 Logger.Error("Failed to get object {Param} for {type}\n"

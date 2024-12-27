@@ -88,7 +88,6 @@ public class HeroCollectionTests : IDisposable
             Assert.Empty(Hero.OwnedCaravans);
             HeroCollectionPatches.CaravanAddIntercept(Hero.OwnedCaravans, caravan, Hero);
             Assert.Equal(caravan, Hero.OwnedCaravans.Last());
-            
         });
 
         // Assert

@@ -105,13 +105,11 @@ internal class HeroCollectionPatches
         {
             if (instruction.opcode == OpCodes.Callvirt && instruction.operand as MethodInfo == childrenAddMethod)
             {
-
                 var newInstr = new CodeInstruction(OpCodes.Call, childrenAddIntercept);
                 newInstr.labels = instruction.labels;
 
                 yield return new CodeInstruction(OpCodes.Ldarg_0);
                 yield return newInstr;
-
             }
             else
             {
@@ -160,7 +158,6 @@ internal class HeroCollectionPatches
 
                 yield return new CodeInstruction(OpCodes.Ldarg_0);
                 yield return newInstr;
-
             }
             else if (instruction.opcode == OpCodes.Callvirt && instruction.operand as MethodInfo == removeMethod)
             {
@@ -231,13 +228,11 @@ internal class HeroCollectionPatches
         {
             if (instruction.opcode == OpCodes.Callvirt && instruction.operand as MethodInfo == addMethod)
             {
-
                 var newInstr = new CodeInstruction(OpCodes.Call, addIntercept);
                 newInstr.labels = instruction.labels;
 
                 yield return new CodeInstruction(OpCodes.Ldarg_0);
                 yield return newInstr;
-
             }
             else if (instruction.opcode == OpCodes.Callvirt && instruction.operand as MethodInfo == removeMethod) 
             {
@@ -294,6 +289,7 @@ internal class HeroCollectionPatches
 
         return ownedAlleys.Remove(value);
     }
+
     [HarmonyTranspiler]
     static IEnumerable<CodeInstruction> WorkshopTranspiler(IEnumerable<CodeInstruction> instructions)
     {
@@ -309,13 +305,11 @@ internal class HeroCollectionPatches
         {
             if (instruction.opcode == OpCodes.Callvirt && instruction.operand as MethodInfo == addMethod)
             {
-
                 var newInstr = new CodeInstruction(OpCodes.Call, addIntercept);
                 newInstr.labels = instruction.labels;
 
                 yield return new CodeInstruction(OpCodes.Ldarg_0);
                 yield return newInstr;
-
             }
             else if (instruction.opcode == OpCodes.Callvirt && instruction.operand as MethodInfo == removeMethod)
             {

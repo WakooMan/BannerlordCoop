@@ -14,6 +14,4 @@ namespace GameInterface.Services.Alleys
             autoSyncBuilder.AddField(AccessTools.Field(typeof(Alley), nameof(Alley._owner)));
         }
     }
-     
-
 }
